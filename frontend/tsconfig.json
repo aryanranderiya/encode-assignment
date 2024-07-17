@@ -11,6 +11,7 @@
       "@contexts/*": ["./src/contexts/*"],
       "@layouts/*": ["./src/layouts/*"],
       "@hooks/*": ["./src/hooks/*"],
+      "@lib/*": ["./src/lib/*"]
     },
 
     /* Bundler mode */
