@@ -1,7 +1,12 @@
 const mongoose = require("mongoose");
 
 const appointmentSchema = new mongoose.Schema({
-  customerName: {
+  firstName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  lastName: {
     type: String,
     required: true,
     trim: true,
@@ -9,7 +14,7 @@ const appointmentSchema = new mongoose.Schema({
   phone: {
     type: String,
     required: true,
-    match: [/^\+?\d{10,15}$/, "Please enter a valid phone number"],
+    match: [/^\+?\d{10}$/, "Please enter a valid phone number"],
   },
   stylist: {
     type: String,

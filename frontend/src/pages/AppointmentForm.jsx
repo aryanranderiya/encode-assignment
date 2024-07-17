@@ -4,19 +4,21 @@ import { Select, SelectItem } from "@nextui-org/select";
 import { Textarea } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 import { UserIcon, MagicWand01Icon, Call02Icon, ServiceIcon, NoteEditIcon, Calendar03Icon } from "../components/icons";
-import { DateInput, TimeInput } from "@nextui-org/date-input";
+import { TimeInput } from "@nextui-org/date-input";
+import { DatePicker } from "@nextui-org/date-picker";
 import axios from 'axios';
 import DefaultLayout from "../layouts/default";
-import Sidebar from "../layouts/Sidebar";
 import { toast } from "sonner"
 
 
-export default function AppointmentForm() {
+export default function AppointmentForm({ viewonly = false }) {
     const [validationState, setValidationState] = useState({
-        customerName: true,
+        firstName: true,
+        lastName: true,
         phone: true,
         stylist: true,
         service: true,
+        appointmentDate: true,
         appointmentTime: true,
     });
 
@@ -25,7 +27,8 @@ export default function AppointmentForm() {
 
         const formData = new FormData(event.target);
         const data = {
-            customerName: formData.get('customerName'),
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
             phone: formData.get('phone'),
             stylist: formData.get('stylist'),
             service: formData.get('service'),
@@ -34,7 +37,7 @@ export default function AppointmentForm() {
             notes: formData.get('notes'),
         };
 
-        const fieldsToValidate = ['customerName', 'phone', 'stylist', 'service', 'appointmentTime'];
+        const fieldsToValidate = ['firstName', "lastName", 'phone', 'stylist', 'service', 'appointmentTime', "appointmentDate"];
         let isValid = true;
         const nextState = {};
 
@@ -56,8 +59,9 @@ export default function AppointmentForm() {
             event.target.reset();
             toast.info("Appointment has been created.")
         } catch (error) {
-            toast.error("Appointment has been created.")
-            console.error('Error creating appointment:', error.response ? error.response.data : error.message);
+            const errorMessage = error.response ? error.response.data.message : error.message
+            toast.error("Error: Appointment could not be created. " + errorMessage)
+            console.error('Error creating appointment:', errorMessage);
         }
     };
 
@@ -80,7 +84,7 @@ export default function AppointmentForm() {
     return (
         <DefaultLayout>
             <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-5 justify-center">
+                <div className="flex flex-col gap-3 justify-center">
                     <div className="my-3">
                         <div className="flex items-center gap-2 text-foreground">
                             <Calendar03Icon color="foreground" />
@@ -89,29 +93,42 @@ export default function AppointmentForm() {
                         <span className="text-lg text-foreground-400">Enter customer details</span>
                     </div>
 
-                    <Input
-                        type="text"
-                        label="Customer Name"
-                        placeholder="John Doe"
-                        variant="faded"
-                        isRequired
-                        startContent={<UserIcon width="20" />}
-                        name="customerName"
-                        isInvalid={!validationState.customerName}
-                        errorMessage="Please enter customer name"
-                    />
+                    <div className="flex gap-2">
+                        <Input
+                            type="text"
+                            label="Customer First Name"
+                            placeholder="John"
+                            variant="faded"
+                            isRequired
+                            startContent={<UserIcon width="20" />}
+                            name="firstName"
+                            isInvalid={!validationState.firstName}
+                            errorMessage="Please enter first name"
+                        />
+
+                        <Input
+                            type="text"
+                            label="Customer Last Name"
+                            placeholder="Doe"
+                            variant="faded"
+                            isRequired
+                            startContent={<UserIcon width="20" />}
+                            name="lastName"
+                            isInvalid={!validationState.lastName}
+                            errorMessage="Please enter last name"
+                        />
+                    </div>
 
                     <Input
                         type="phone"
                         label="Phone"
-                        placeholder="+91 1234567890"
+                        placeholder="1234567890"
                         variant="faded"
                         isRequired
                         startContent={<Call02Icon width="20" />}
                         name="phone"
                         isInvalid={!validationState.phone}
                         errorMessage="Phone number must be of 10 digits"
-                        className={!validationState.phone ? 'error-input' : ''}
                     />
 
                     <Select
@@ -121,7 +138,6 @@ export default function AppointmentForm() {
                         name="stylist"
                         isInvalid={!validationState.stylist}
                         errorMessage="Please select a stylist"
-                        className={!validationState.stylist ? 'error-input' : ''}
                     >
                         {stylists.map((stylist) => (
                             <SelectItem key={stylist.key} value={stylist.label}>
@@ -137,7 +153,6 @@ export default function AppointmentForm() {
                         name="service"
                         isInvalid={!validationState.service}
                         errorMessage="Please select a service"
-                        className={!validationState.service ? 'error-input' : ''}
                     >
                         {services.map((service) => (
                             <SelectItem key={service.key} value={service.label}>
@@ -146,23 +161,23 @@ export default function AppointmentForm() {
                         ))}
                     </Select>
 
-                    <DateInput
-                        label="Appointment Date"
-                        variant="faded"
-                        name="appointmentDate"
-                        isInvalid={!validationState.appointmentTime}
-                        errorMessage="Please select an appointment date"
-                        className={!validationState.appointmentTime ? 'error-input' : ''}
-                    />
+                    <div className="flex gap-2">
+                        <DatePicker variant="faded"
+                            label="Appointment Date"
+                            name="appointmentDate"
+                            isInvalid={!validationState.appointmentDate}
+                            errorMessage="Please select an appointment date"
+                        />
 
-                    <TimeInput
-                        label="Appointment Time"
-                        variant="faded"
-                        name="appointmentTime"
-                        isInvalid={!validationState.appointmentTime}
-                        errorMessage="Please select an appointment time"
-                        className={!validationState.appointmentTime ? 'error-input' : ''}
-                    />
+                        <TimeInput
+                            label="Appointment Time"
+                            variant="faded"
+                            name="appointmentTime"
+                            isInvalid={!validationState.appointmentTime}
+                            errorMessage="Please select an appointment time"
+                            className={!validationState.appointmentTime ? 'error-input' : ''}
+                        />
+                    </div>
 
                     <Textarea
                         label="Notes"
@@ -176,7 +191,7 @@ export default function AppointmentForm() {
                         type="submit"
                         variant="shadow"
                         color="primary"
-                        className="font-medium"
+                        className="font-medium mt-3"
                     >
                         Add new appointment
                     </Button>
