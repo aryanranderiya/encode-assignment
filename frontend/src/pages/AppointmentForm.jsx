@@ -3,12 +3,13 @@ import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Textarea } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
-import { Calendar } from "@nextui-org/calendar";
 import { UserIcon, MagicWand01Icon, Call02Icon, ServiceIcon, NoteEditIcon, Calendar03Icon } from "../components/icons";
 import { DateInput, TimeInput } from "@nextui-org/date-input";
 import axios from 'axios';
 import DefaultLayout from "../layouts/default";
 import Sidebar from "../layouts/Sidebar";
+import { toast } from "sonner"
+
 
 export default function AppointmentForm() {
     const [validationState, setValidationState] = useState({
@@ -34,31 +35,28 @@ export default function AppointmentForm() {
         };
 
         const fieldsToValidate = ['customerName', 'phone', 'stylist', 'service', 'appointmentTime'];
-
-        // Validate each field
         let isValid = true;
         const nextState = {};
 
         fieldsToValidate.forEach(field => {
-            if (!data[field]) {
+            if (!data[field] || (field === "phone" && data[field].length != 10)) {
                 isValid = false;
                 nextState[field] = false;
-            } else {
-                nextState[field] = true;
             }
+            else nextState[field] = true;
         });
 
         setValidationState(nextState);
+        if (!isValid) return;
 
-        if (!isValid) {
-            return;
-        }
 
         try {
             const response = await axios.post('http://localhost:5000/createAppointment', data);
             console.log('Appointment created:', response.data);
             event.target.reset();
+            toast.info("Appointment has been created.")
         } catch (error) {
+            toast.error("Appointment has been created.")
             console.error('Error creating appointment:', error.response ? error.response.data : error.message);
         }
     };
@@ -112,7 +110,7 @@ export default function AppointmentForm() {
                         startContent={<Call02Icon width="20" />}
                         name="phone"
                         isInvalid={!validationState.phone}
-                        errorMessage="Please enter a valid phone number"
+                        errorMessage="Phone number must be of 10 digits"
                         className={!validationState.phone ? 'error-input' : ''}
                     />
 
