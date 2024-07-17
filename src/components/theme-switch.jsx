@@ -7,7 +7,7 @@ export const ThemeSwitch = ({ className }) => {
   const { theme, toggleTheme } = useTheme();
 
   const { Component, isSelected, getInputProps } = useSwitch({
-    isSelected: theme === "light",
+    isSelected: theme === "dark",
     onChange: toggleTheme,
   });
 
