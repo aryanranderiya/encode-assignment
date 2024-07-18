@@ -1,50 +1,72 @@
-# Vite & NextUI Template
+## Basic Appointment Management System
 
-This is a template for creating applications using Vite and NextUI (v2).
+## Screenshots
 
-[Try it on CodeSandbox](https://githubbox.com/nextui-org/vite-template)
+<!-- ![Screenshot of Vite Project](frontend-screenshot.png) -->
 
-## Technologies Used
+### Frontend Setup with Vite
 
-- [Vite](https://vitejs.dev/guide/)
-- [NextUI](https://nextui.org)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Tailwind Variants](https://tailwind-variants.org)
-- [TypeScript](https://www.typescriptlang.org)
-- [Framer Motion](https://www.framer.com/motion)
+#### Project Setup
 
-## How to Use
+1. **Clone Repository**
 
-To clone the project, run the following command:
+   ```bash
+   git clone https://github.com/aryanranderiya/encode-assignment
+   cd encode-assignment
+   cd frontend
+   ```
 
-```bash
-git clone https://github.com/nextui-org/vite-template.git
-```
+2. **Install Dependencies**
 
-### Install dependencies
+   ```bash
+   npm install
+   ```
 
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
+3. **Environment Variables**
 
-```bash
-npm install
-```
+   - Rename `.env.example` to `.env`.
+   - Update VITE_BACKEND_URL to your Express server URL
 
-### Run the development server
+4. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
 
-```bash
-npm run dev
-```
+---
 
-### Setup pnpm (optional)
+### Backend Setup with Express
 
-If you are using `pnpm`, you need to add the following code to your `.npmrc` file:
+#### Project Setup
 
-```bash
-public-hoist-pattern[]=*@nextui-org/*
-```
+1. **Clone Repository**
 
-After modifying the `.npmrc` file, you need to run `pnpm install` again to ensure that the dependencies are installed correctly.
+   ```bash
+   git clone https://github.com/aryanranderiya/encode-assignment
+   cd encode-assignment
+   cd backend
+   ```
 
-## License
+2. **Install Dependencies**
 
-Licensed under the [MIT license](https://github.com/nextui-org/vite-template/blob/main/LICENSE).
+   ```bash
+   npm install
+   ```
+
+3. **Environment Variables**
+
+   - Rename `.env.example` to `.env`.
+   - Update MONGODB_URI to the URI of your MongoDB database
+
+4. **Run Server**
+   ```bash
+   npm start
+   ```
+
+---
+
+### Additional Notes
+
+- Ensure both frontend and backend servers are running concurrently for full functionality.
+- For deployment, configure `.env` files accordingly on your hosting platform.
+
+---
