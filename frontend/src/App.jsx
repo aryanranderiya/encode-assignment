@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import AppointmentForm from "./pages/AppointmentForm";
 import { AppointmentsProvider } from "./contexts/AppointmentsContext"
 
-function App() {
+export default function App() {
   return (
     <AppointmentsProvider>
       <Routes>
@@ -15,4 +15,3 @@ function App() {
   );
 }
 
-export default App;

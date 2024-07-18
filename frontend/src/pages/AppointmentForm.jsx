@@ -9,14 +9,39 @@ import axios from 'axios';
 import DefaultLayout from "../layouts/default";
 import { toast } from "sonner"
 import { useParams } from "react-router-dom";
-import { getLocalTimeZone, parseDate, today, Time } from "@internationalized/date";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { Chip } from "@nextui-org/react";
-import { useAppointments } from "../contexts/AppointmentsContext"
+import fetchAllAppointments from "../hooks/fetching"
+
+const stylists = [
+    { key: "jane-doe", label: "Jane Doe" },
+    { key: "john-smith", label: "John Smith" },
+    { key: "emily-clark", label: "Emily Clark" },
+    { key: "michael-brown", label: "Michael Brown" },
+];
+
+const services = [
+    { key: "haircut", label: "Haircut" },
+    { key: "beard-trimming", label: "Beard Trimming" },
+    { key: "hair-coloring", label: "Hair Coloring" },
+    { key: "manicure", label: "Manicure" },
+    { key: "pedicure", label: "Pedicure" },
+    { key: "facial", label: "Facial" },
+];
 
 export default function AppointmentForm({ viewonly = false }) {
     const { id } = useParams();
-    const { setAppointments } = useAppointments();
 
+    const fetchAppointmentData = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/fetchAppointment/${id}`);
+            setFormData(response.data)
+        } catch (error) {
+            const errorMessage = error.response ? error.response.data.message : error.message
+            console.error('Error fetching appointment:', errorMessage);
+        }
+    }
+    
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -28,32 +53,22 @@ export default function AppointmentForm({ viewonly = false }) {
         notes: "",
     });
 
-    const fetchAppointmentData = async () => {
-        try {
-            const response = await axios.get(`http://localhost:5000/fetchAppointment/${id}`);
-            console.log('Appointment fetched:', response.data);
-            setFormData(response.data)
-        } catch (error) {
-            const errorMessage = error.response ? error.response.data.message : error.message
-            console.error('Error fetching appointment:', errorMessage);
-        }
-    }
-
-    const fetchAllAppointments = async () => {
-        try {
-            const response = await axios.get('http://localhost:5000/fetchAllAppointments');
-            console.log(response.data);
-            setAppointments(response.data);
-        } catch (error) {
-            console.error('Error fetching appointments:', error);
-        }
-    };
-
     React.useEffect(() => {
-        if (!viewonly || !id) return;
+        if (!viewonly || !id) {
+            setFormData({
+                firstName: "",
+                lastName: "",
+                phone: "",
+                stylist: "",
+                service: "",
+                appointmentDate: "",
+                appointmentTime: "",
+                notes: "",
+            })
+            return;
+        }
         fetchAppointmentData()
     }, [id]);
-
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -69,22 +84,6 @@ export default function AppointmentForm({ viewonly = false }) {
             console.error('Error creating appointment:', errorMessage);
         }
     };
-
-    const stylists = [
-        { key: "jane-doe", label: "Jane Doe" },
-        { key: "john-smith", label: "John Smith" },
-        { key: "emily-clark", label: "Emily Clark" },
-        { key: "michael-brown", label: "Michael Brown" },
-    ];
-
-    const services = [
-        { key: "haircut", label: "Haircut" },
-        { key: "beard-trimming", label: "Beard Trimming" },
-        { key: "hair-coloring", label: "Hair Coloring" },
-        { key: "manicure", label: "Manicure" },
-        { key: "pedicure", label: "Pedicure" },
-        { key: "facial", label: "Facial" },
-    ];
 
     return (
         <DefaultLayout>
