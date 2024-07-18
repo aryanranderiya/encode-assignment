@@ -1,5 +1,3 @@
-import { Link } from "@nextui-org/link";
-import { Chip } from "@nextui-org/react";
 import { Navbar } from "../components/navbar";
 import Sidebar from "./Sidebar";
 import { ScrollArea } from "../components/ui/scroll-area"

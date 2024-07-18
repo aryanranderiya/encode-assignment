@@ -1,11 +1,11 @@
 import { Listbox, ListboxSection, ListboxItem } from "@nextui-org/listbox";
 import * as React from "react";
-import axios from 'axios';
 import { useAppointments } from "../contexts/AppointmentsContext";
 import { ScrollArea } from "../components/ui/scroll-area";
 import { Button } from "@nextui-org/button";
 import { useNavigate } from "react-router-dom";
 import { Calendar03Icon } from "../components/icons";
+import { fetchAllAppointments } from "../hooks/fetching";
 
 export default function Sidebar() {
     const { appointments, setAppointments } = useAppointments();
@@ -15,16 +15,7 @@ export default function Sidebar() {
     const navigate = useNavigate();
 
     React.useEffect(() => {
-        const fetchAppointments = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/fetchAllAppointments');
-                setAppointments(response.data);
-            } catch (error) {
-                console.error('Error fetching appointments:', error);
-            }
-        };
-
-        fetchAppointments();
+        fetchAllAppointments(setAppointments);
     }, []);
 
     function groupAppointments(appointments) {

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
-import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner"
 
@@ -16,6 +15,7 @@ import { UserIcon, MagicWand01Icon, Call02Icon, ServiceIcon, NoteEditIcon, Calen
 import DefaultLayout from "../layouts/default";
 import { fetchAllAppointments } from "../hooks/fetching"
 import { useAppointments } from "../contexts/AppointmentsContext"; // Appointments context hook
+import api from "../api"
 
 const stylists = [
     { key: "jane-doe", label: "Jane Doe" },
@@ -40,7 +40,7 @@ export default function AppointmentForm({ viewonly = false }) { // viewonly: to 
 
     const fetchAppointmentData = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/fetchAppointment/${id}`);
+            const response = await api.get(`/fetchAppointment/${id}`);
             setFormData(response.data) //  Update form data with fetched data
         } catch (error) {
             const errorMessage = error.response ? error.response.data.message : error.message
@@ -82,7 +82,7 @@ export default function AppointmentForm({ viewonly = false }) { // viewonly: to 
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/createAppointment', formData);
+            const response = await api.post('/createAppointment', formData);
             console.log('Appointment created:', response.data);
             event.target.reset();  // Reset form after submission
             toast.info("Appointment has been created.")
