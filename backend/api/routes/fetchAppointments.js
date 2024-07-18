@@ -12,7 +12,7 @@ router.get("/fetchAllAppointments", async (req, res) => {
 });
 
 // Get an appointment by ID
-router.get("/fetchAllAppointments/:id", async (req, res) => {
+router.get("/fetchAppointment/:id", async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
     if (appointment) {

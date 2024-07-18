@@ -3,61 +3,66 @@ import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Textarea } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
-import { UserIcon, MagicWand01Icon, Call02Icon, ServiceIcon, NoteEditIcon, Calendar03Icon } from "../components/icons";
-import { TimeInput } from "@nextui-org/date-input";
+import { UserIcon, MagicWand01Icon, Call02Icon, ServiceIcon, NoteEditIcon, Calendar03Icon, EditOffIcon, AlarmClockIcon } from "../components/icons";
 import { DatePicker } from "@nextui-org/date-picker";
 import axios from 'axios';
 import DefaultLayout from "../layouts/default";
 import { toast } from "sonner"
-
+import { useParams } from "react-router-dom";
+import { getLocalTimeZone, parseDate, today, Time } from "@internationalized/date";
+import { Chip } from "@nextui-org/react";
+import { useAppointments } from "../contexts/AppointmentsContext"
 
 export default function AppointmentForm({ viewonly = false }) {
-    const [validationState, setValidationState] = useState({
-        firstName: true,
-        lastName: true,
-        phone: true,
-        stylist: true,
-        service: true,
-        appointmentDate: true,
-        appointmentTime: true,
+    const { id } = useParams();
+    const { setAppointments } = useAppointments();
+
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        phone: "",
+        stylist: "",
+        service: "",
+        appointmentDate: "",
+        appointmentTime: "",
+        notes: "",
     });
+
+    const fetchAppointmentData = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/fetchAppointment/${id}`);
+            console.log('Appointment fetched:', response.data);
+            setFormData(response.data)
+        } catch (error) {
+            const errorMessage = error.response ? error.response.data.message : error.message
+            console.error('Error fetching appointment:', errorMessage);
+        }
+    }
+
+    const fetchAllAppointments = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/fetchAllAppointments');
+            console.log(response.data);
+            setAppointments(response.data);
+        } catch (error) {
+            console.error('Error fetching appointments:', error);
+        }
+    };
+
+    React.useEffect(() => {
+        if (!viewonly || !id) return;
+        fetchAppointmentData()
+    }, [id]);
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        const formData = new FormData(event.target);
-        const data = {
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            phone: formData.get('phone'),
-            stylist: formData.get('stylist'),
-            service: formData.get('service'),
-            appointmentTime: formData.get('appointmentTime'),
-            appointmentDate: formData.get('appointmentDate'),
-            notes: formData.get('notes'),
-        };
-
-        const fieldsToValidate = ['firstName', "lastName", 'phone', 'stylist', 'service', 'appointmentTime', "appointmentDate"];
-        let isValid = true;
-        const nextState = {};
-
-        fieldsToValidate.forEach(field => {
-            if (!data[field] || (field === "phone" && data[field].length != 10)) {
-                isValid = false;
-                nextState[field] = false;
-            }
-            else nextState[field] = true;
-        });
-
-        setValidationState(nextState);
-        if (!isValid) return;
-
-
         try {
-            const response = await axios.post('http://localhost:5000/createAppointment', data);
+            const response = await axios.post('http://localhost:5000/createAppointment', formData);
             console.log('Appointment created:', response.data);
             event.target.reset();
             toast.info("Appointment has been created.")
+            fetchAllAppointments();
         } catch (error) {
             const errorMessage = error.response ? error.response.data.message : error.message
             toast.error("Error: Appointment could not be created. " + errorMessage)
@@ -90,7 +95,15 @@ export default function AppointmentForm({ viewonly = false }) {
                             <Calendar03Icon color="foreground" />
                             <span className="font-bold text-3xl">Add New Appointment</span>
                         </div>
-                        <span className="text-lg text-foreground-400">Enter customer details</span>
+
+                        {viewonly ? <Chip size="sm" variant="flat" color="danger" className="mt-2">
+                            <div className=" flex flex-row items-center gap-2">
+                                <EditOffIcon color="primary" width="15" />
+                                Read Only
+                            </div>
+                        </Chip> :
+                            <span className="text-lg text-foreground-400">Enter customer details</span>
+                        }
                     </div>
 
                     <div className="flex gap-2">
@@ -102,8 +115,14 @@ export default function AppointmentForm({ viewonly = false }) {
                             isRequired
                             startContent={<UserIcon width="20" />}
                             name="firstName"
-                            isInvalid={!validationState.firstName}
+                            value={formData.firstName}
+                            isInvalid={formData.firstName === ""}
+                            isReadOnly={viewonly}
                             errorMessage="Please enter first name"
+                            onValueChange={(value) => setFormData((prevData) => ({
+                                ...prevData,
+                                firstName: value,
+                            }))}
                         />
 
                         <Input
@@ -112,10 +131,16 @@ export default function AppointmentForm({ viewonly = false }) {
                             placeholder="Doe"
                             variant="faded"
                             isRequired
+                            isInvalid={formData.lastName === ""}
+                            value={formData.lastName}
+                            isReadOnly={viewonly}
                             startContent={<UserIcon width="20" />}
                             name="lastName"
-                            isInvalid={!validationState.lastName}
                             errorMessage="Please enter last name"
+                            onValueChange={(value) => setFormData((prevData) => ({
+                                ...prevData,
+                                lastName: value,
+                            }))}
                         />
                     </div>
 
@@ -125,10 +150,16 @@ export default function AppointmentForm({ viewonly = false }) {
                         placeholder="1234567890"
                         variant="faded"
                         isRequired
+                        value={formData.phone}
+                        isReadOnly={viewonly}
                         startContent={<Call02Icon width="20" />}
                         name="phone"
-                        isInvalid={!validationState.phone}
+                        isInvalid={formData.phone.length != 10}
                         errorMessage="Phone number must be of 10 digits"
+                        onValueChange={(value) => setFormData((prevData) => ({
+                            ...prevData,
+                            phone: value,
+                        }))}
                     />
 
                     <Select
@@ -136,8 +167,14 @@ export default function AppointmentForm({ viewonly = false }) {
                         variant="faded"
                         startContent={<MagicWand01Icon width="20" />}
                         name="stylist"
-                        isInvalid={!validationState.stylist}
+                        isInvalid={formData.stylist === ""}
                         errorMessage="Please select a stylist"
+                        selectedKeys={[formData.stylist]}
+                        isReadOnly={viewonly}
+                        onChange={(e) => setFormData((prevData) => ({
+                            ...prevData,
+                            stylist: e.target.value,
+                        }))}
                     >
                         {stylists.map((stylist) => (
                             <SelectItem key={stylist.key} value={stylist.label}>
@@ -151,8 +188,14 @@ export default function AppointmentForm({ viewonly = false }) {
                         variant="faded"
                         startContent={<ServiceIcon width="20" />}
                         name="service"
-                        isInvalid={!validationState.service}
+                        isInvalid={formData.service === ""}
                         errorMessage="Please select a service"
+                        selectedKeys={[formData.service]}
+                        isReadOnly={viewonly}
+                        onChange={(e) => setFormData((prevData) => ({
+                            ...prevData,
+                            service: e.target.value,
+                        }))}
                     >
                         {services.map((service) => (
                             <SelectItem key={service.key} value={service.label}>
@@ -162,21 +205,48 @@ export default function AppointmentForm({ viewonly = false }) {
                     </Select>
 
                     <div className="flex gap-2">
-                        <DatePicker variant="faded"
+                        <DatePicker
+                            variant="faded"
                             label="Appointment Date"
                             name="appointmentDate"
-                            isInvalid={!validationState.appointmentDate}
-                            errorMessage="Please select an appointment date"
+                            isInvalid={
+                                !formData.appointmentDate ||
+                                new Date(formData.appointmentDate) < today(getLocalTimeZone()).toDate()
+                            }
+                            errorMessage="Please enter a valid date."
+                            isReadOnly={viewonly}
+                            minValue={today(getLocalTimeZone())}
+                            onChange={(event) => {
+                                setFormData((prevData) => ({
+                                    ...prevData,
+                                    appointmentDate: event?.toString(),
+                                }));
+                            }}
+                            value={
+                                formData.appointmentDate
+                                    ? parseDate(formData.appointmentDate)
+                                    : null
+                            }
                         />
 
-                        <TimeInput
+                        <Input
+                            type="time"
                             label="Appointment Time"
+                            placeholder="1234567890"
                             variant="faded"
+                            isRequired
+                            value={formData.appointmentTime}
+                            isReadOnly={viewonly}
+                            startContent={<AlarmClockIcon width="20" />}
                             name="appointmentTime"
-                            isInvalid={!validationState.appointmentTime}
+                            isInvalid={!formData.appointmentTime}
                             errorMessage="Please select an appointment time"
-                            className={!validationState.appointmentTime ? 'error-input' : ''}
+                            onValueChange={(value) => setFormData((prevData) => ({
+                                ...prevData,
+                                appointmentTime: value,
+                            }))}
                         />
+
                     </div>
 
                     <Textarea
@@ -197,6 +267,6 @@ export default function AppointmentForm({ viewonly = false }) {
                     </Button>
                 </div>
             </form>
-        </DefaultLayout>
+        </DefaultLayout >
     );
 }

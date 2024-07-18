@@ -16,16 +16,6 @@ export default function DefaultLayout({ children }) {
             {children}
           </main>
         </ScrollArea>
-
-        <footer className="flex justify-center py-4 fixed bottom-0 left-0 w-full backdrop-blur-sm" >
-          <Link
-            isExternal
-            href="https://aryanranderiya.com"
-          >
-            <Chip color="primary" variant="dot" className="font-bold">
-              Made by Aryan Randeriya</Chip>
-          </Link>
-        </footer>
       </div>
     </div>
   );
