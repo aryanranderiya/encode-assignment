@@ -15,7 +15,7 @@ import { UserIcon, MagicWand01Icon, Call02Icon, ServiceIcon, NoteEditIcon, Calen
 import DefaultLayout from "../layouts/default";
 import { fetchAllAppointments } from "../hooks/fetching"
 import { useAppointments } from "../contexts/AppointmentsContext"; // Appointments context hook
-import api from "../api"
+import api from "../apiaxios"
 
 const stylists = [
     { key: "jane-doe", label: "Jane Doe" },

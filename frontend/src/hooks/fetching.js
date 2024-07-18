@@ -1,4 +1,4 @@
-import api from "../api";
+import api from "../apiaxios";
 
 // Function to fetch all appointments from the server
 export const fetchAllAppointments = async (setAppointments) => {

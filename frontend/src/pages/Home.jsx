@@ -9,13 +9,13 @@ import { fetchAllAppointments } from "../hooks/fetching"
 
 
 export default function Home() {
-  const { appointments } = useAppointments(); // Retrieve appointments from context
+  const { appointments, setAppointments } = useAppointments(); // Retrieve appointments from context
   const columns = ["Name", "Time", "Date", ""]; // Table column headers
   const navigate = useNavigate();
 
   // Fetch all appointments on component mount
   React.useEffect(() => {
-    fetchAllAppointments();
+    fetchAllAppointments(setAppointments);
   }, []);
 
   return (
