@@ -16,7 +16,7 @@ export const ThemeSwitch = ({ className }) => {
   return (
     <Component className={`cursor-pointer ${className}`}>
       <input {...getInputProps()} hidden /> {/* Hidden input element */}
-      {isSelected ? <Moon02Icon size={22} /> : <Sun03Icon size={22} />} {/* Display the appropriate icon based on the isSelected value */}
+      {isSelected ? <Moon02Icon size={22} color="primary" /> : <Sun03Icon size={22} color="primary" />} {/* Display the appropriate icon based on the isSelected value */}
     </Component>
   );
 };

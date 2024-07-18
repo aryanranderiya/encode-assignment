@@ -7,12 +7,14 @@ import { ScrollArea } from "../components/ui/scroll-area"
 export default function DefaultLayout({ children }) {
   return (
     <div className="flex flex-row w-screen overflow-hidden h-screen">
-      <Sidebar />
+      <div className="sm:flex hidden">
+        <Sidebar />
+      </div>
       <div className="flex flex-col w-full">
         <Navbar />
 
         <ScrollArea>
-          <main className="container max-w-7xl flex-grow p-20">
+          <main className="py-5 sm:px-14 px-7">
             {children}
           </main>
         </ScrollArea>

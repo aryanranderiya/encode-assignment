@@ -1,17 +1,21 @@
 import React, { useState } from "react";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import axios from 'axios';
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner"
+
+// NextUI Components
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Textarea } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
-import { UserIcon, MagicWand01Icon, Call02Icon, ServiceIcon, NoteEditIcon, Calendar03Icon, EditOffIcon, AlarmClockIcon } from "../components/icons";
 import { DatePicker } from "@nextui-org/date-picker";
-import axios from 'axios';
-import DefaultLayout from "../layouts/default";
-import { toast } from "sonner"
-import { useParams } from "react-router-dom";
-import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { Chip } from "@nextui-org/react";
-import fetchAllAppointments from "../hooks/fetching"
+
+import { UserIcon, MagicWand01Icon, Call02Icon, ServiceIcon, NoteEditIcon, Calendar03Icon, EditOffIcon, AlarmClockIcon } from "../components/icons";
+import DefaultLayout from "../layouts/default";
+import { fetchAllAppointments } from "../hooks/fetching"
+import { useAppointments } from "../contexts/AppointmentsContext"; // Appointments context hook
 
 const stylists = [
     { key: "jane-doe", label: "Jane Doe" },
@@ -29,19 +33,22 @@ const services = [
     { key: "facial", label: "Facial" },
 ];
 
-export default function AppointmentForm({ viewonly = false }) {
-    const { id } = useParams();
+export default function AppointmentForm({ viewonly = false }) { // viewonly: to conditionally render inputs in read only mode
+    const { id } = useParams(); // Retrieve ID from URL params (will fetch based on the retreived id)
+    const navigate = useNavigate();
+    const { setAppointments } = useAppointments(); // Destructure setAppointments set state function from context
 
     const fetchAppointmentData = async () => {
         try {
             const response = await axios.get(`http://localhost:5000/fetchAppointment/${id}`);
-            setFormData(response.data)
+            setFormData(response.data) //  Update form data with fetched data
         } catch (error) {
             const errorMessage = error.response ? error.response.data.message : error.message
             console.error('Error fetching appointment:', errorMessage);
+            navigate("/add"); // Redirect to add appointment form if error in fetching (such as no valid Id)
         }
     }
-    
+
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -53,6 +60,7 @@ export default function AppointmentForm({ viewonly = false }) {
         notes: "",
     });
 
+    // Effect to initialize form data or fetch appointment data if not in viewonly mode and there is not an existing id 
     React.useEffect(() => {
         if (!viewonly || !id) {
             setFormData({
@@ -67,17 +75,18 @@ export default function AppointmentForm({ viewonly = false }) {
             })
             return;
         }
-        fetchAppointmentData()
+        fetchAppointmentData();
     }, [id]);
 
+    // Handle form submission
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
             const response = await axios.post('http://localhost:5000/createAppointment', formData);
             console.log('Appointment created:', response.data);
-            event.target.reset();
+            event.target.reset();  // Reset form after submission
             toast.info("Appointment has been created.")
-            fetchAllAppointments();
+            fetchAllAppointments(setAppointments);  // Fetch all appointments to update sidebar list after submitting form
         } catch (error) {
             const errorMessage = error.response ? error.response.data.message : error.message
             toast.error("Error: Appointment could not be created. " + errorMessage)
@@ -86,13 +95,14 @@ export default function AppointmentForm({ viewonly = false }) {
     };
 
     return (
-        <DefaultLayout>
+        <DefaultLayout> {/* Use default layout (parent container) */}
             <form onSubmit={handleSubmit}>
+
                 <div className="flex flex-col gap-3 justify-center">
                     <div className="my-3">
                         <div className="flex items-center gap-2 text-foreground">
                             <Calendar03Icon color="foreground" />
-                            <span className="font-bold text-3xl">Add New Appointment</span>
+                            <span className="font-bold md:text-3xl text-2xl">Add New Appointment</span>
                         </div>
 
                         {viewonly ? <Chip size="sm" variant="flat" color="danger" className="mt-2">
@@ -101,11 +111,11 @@ export default function AppointmentForm({ viewonly = false }) {
                                 Read Only
                             </div>
                         </Chip> :
-                            <span className="text-lg text-foreground-400">Enter customer details</span>
+                            <span className="md:text-lg text-medium text-foreground-400">Enter customer details</span>
                         }
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 md:flex-row flex-col">
                         <Input
                             type="text"
                             label="Customer First Name"
@@ -203,7 +213,7 @@ export default function AppointmentForm({ viewonly = false }) {
                         ))}
                     </Select>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 md:flex-row flex-col">
                         <DatePicker
                             variant="faded"
                             label="Appointment Date"
@@ -260,7 +270,7 @@ export default function AppointmentForm({ viewonly = false }) {
                         type="submit"
                         variant="shadow"
                         color="primary"
-                        className="font-medium mt-3"
+                        className="font-medium mt-3 mb-6"
                     >
                         Add new appointment
                     </Button>
