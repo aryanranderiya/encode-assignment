@@ -257,14 +257,20 @@ export default function AppointmentForm({ viewonly = false }) { // viewonly: to 
                         />
 
                     </div>
-
-                    <Textarea
-                        label="Notes"
-                        placeholder="Enter notes, if any"
-                        startContent={<NoteEditIcon width="20" />}
-                        variant="faded"
-                        name="notes"
-                    />
+                    {(!viewonly || formData.notes) &&
+                        <Textarea
+                            label="Notes"
+                            placeholder="Enter notes, if any"
+                            startContent={<NoteEditIcon width="20" />}
+                            variant="faded"
+                            value={formData.notes}
+                            name="notes"
+                            onValueChange={(value) => setFormData((prevData) => ({
+                                ...prevData,
+                                notes: value,
+                            }))}
+                        />
+                    }
 
                     <Button
                         type="submit"
